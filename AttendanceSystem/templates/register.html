@@ -1,0 +1,126 @@
+
+<!-- register.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Registration</title>
+    <style>
+        body{
+            background-color: rgb(196,209,216,255);
+        }
+        h1{
+            text-align: center;
+        }
+
+        input[type=text] {
+            width: 100%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            display: inline-block;
+            box-sizing: border-box;
+            border: 2px  rgb(196,209,216,255);
+            border-radius: 4px;
+
+        }
+        .main{
+            border-radius: 5px;
+            background-color: #f2f2f2;
+            padding: 5px;
+            width: 38%;
+            margin-left: 30%;
+
+        }
+        input[type=submit] {
+            width: 40%;
+            background-color: rgb(196,209,216,255);
+            color: black;
+            padding: 14px 20px;
+            margin: 8px 130px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        input[type=submit]:hover {
+            background-color: rgba(174,191,201,255);
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+<body>
+    <h1>Registration</h1>
+    <div class = 'main'>
+    <form id="registrationForm" method="POST" action="/register">
+        <label for="student_id">Student ID</label>
+        <input type="text" id="student_id" name="student_id" placeholder="Your Student ID.." required><br>
+
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" placeholder="Your Name.." required><br>
+
+        <div id="cameraContainer"></div>
+
+        <input type="submit" value="Register">
+    </form>
+    </div>
+
+    <script>
+        // Access the camera and capture a photo
+        function capturePhoto() {
+            // Create a video element to display the camera stream
+            const videoElement = document.createElement('video');
+            videoElement.setAttribute('autoplay', '');
+            videoElement.style.display = 'none';
+            document.getElementById('cameraContainer').appendChild(videoElement);
+
+            // Request access to the camera
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function (stream) {
+                    // Attach the camera stream to the video element
+                    videoElement.srcObject = stream;
+
+                    // Show the video element
+                    videoElement.style.display = 'block';
+
+                    // Create a canvas element to draw the captured photo
+                    const canvasElement = document.createElement('canvas');
+                    canvasElement.width = videoElement.videoWidth;
+                    canvasElement.height = videoElement.videoHeight;
+                    const canvasContext = canvasElement.getContext('2d');
+
+                    // Capture the photo when the capture button is clicked
+                    document.getElementById('captureBtn').addEventListener('click', function () {
+                        // Draw the current frame of the video on the canvas
+                        canvasContext.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+
+                        // Convert the canvas image to a data URL (base64)
+                        const imageDataUrl = canvasElement.toDataURL();
+
+                        // Create an input element to hold the captured photo data
+                        const imageInput = document.createElement('input');
+                        imageInput.type = 'hidden';
+                        imageInput.name = 'photo_data';
+                        imageInput.value = imageDataUrl;
+
+                        // Append the input element to the form
+                        document.getElementById('registrationForm').appendChild(imageInput);
+
+                        // Stop the camera stream
+                        stream.getTracks().forEach(track => track.stop());
+
+                        // Remove the video and canvas elements
+                        videoElement.remove();
+                        canvasElement.remove();
+                    });
+                })
+                .catch(function (error) {
+                    console.error('Error accessing the camera: ', error);
+                });
+        }
+
+        // Call the capturePhoto function when the page is loaded
+        $(document).ready(function () {
+            capturePhoto();
+        });
+    </script>
+</body>
+</html>
